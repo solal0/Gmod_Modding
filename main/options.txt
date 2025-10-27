@@ -1,26 +1,72 @@
 -- Player ESP Folder
 local PlayerESP = CreateFolder("Player ESP")
-PlayerESP:Option("Bones", true)
-PlayerESP:Option("Show Name", true)
-PlayerESP:Option("Health", true)
-PlayerESP:Option("Distance", true)
-PlayerESP:Option("Ping", true)
-PlayerESP:Option("Weapon", true)
+PlayerESP:Option("Bones", true, function(val)
+    if val then
+        hook.Add("HUDPaint","PlayerBonesESP",function()
+            for _,ply in ipairs(player.GetAll()) do
+                if ply==LocalPlayer() then continue end
+                for i=0,ply:GetBoneCount()-1 do
+                    local pos, ang = ply:GetBonePosition(i)
+                    local parent = ply:GetBoneParent(i)
+                    if parent>=0 and pos then
+                        local ppos,_ = ply:GetBonePosition(parent)
+                        if ppos then
+                            local s1,s2 = pos:ToScreen(), ppos:ToScreen()
+                            surface.SetDrawColor(255,255,0)
+                            surface.DrawLine(s1.x,s1.y,s2.x,s2.y)
+                        end
+                    end
+                end
+                local headPos = ply:EyePos():ToScreen()
+                draw.SimpleText(ply:Nick().." | HP:"..ply:Health(),"DermaDefault",headPos.x,headPos.y-10,Color(255,255,0),TEXT_ALIGN_CENTER)
+            end
+        end)
+    else
+        hook.Remove("HUDPaint","PlayerBonesESP")
+    end
+end)
 
 -- Prop ESP Folder
 local PropESP = CreateFolder("Prop ESP")
-PropESP:Option("Show All Props", true)
-PropESP:Option("Filter Props", false)
+PropESP:Option("Show Props", true, function(val)
+    if val then
+        hook.Add("HUDPaint","PropESP",function()
+            for _,ent in ipairs(ents.GetAll()) do
+                if not ent:IsPlayer() then
+                    local scr = ent:LocalToWorld(ent:OBBCenter()):ToScreen()
+                    draw.SimpleText(ent:GetClass(),"DermaDefault",scr.x,scr.y,Color(0,150,255),TEXT_ALIGN_CENTER)
+                end
+            end
+        end)
+    else
+        hook.Remove("HUDPaint","PropESP")
+    end
+end)
 
--- Prop Filter Folder (used by Prop ESP)
+-- Prop Filter Folder
 local PropFilter = CreateFolder("Prop Filter")
 PropFilter:Option("Enable Filter", false)
--- Example pre-added filter props
 PropFilter:Option("prop_physics", true)
 PropFilter:Option("prop_ragdoll", true)
 
 -- Spectate Folder
 local Spectate = CreateFolder("Spectate")
-Spectate:Option("Enable Spectate", false)
-Spectate:Option("Target Player", true)
-Spectate:Option("FOV", 90)
+Spectate:Option("Enable Spectate", false, function(val)
+    if val then
+        hook.Add("CalcView","SpectateView",function(ply,pos,ang,fov)
+            local target = player.GetAll()[2] -- example: target second player
+            if IsValid(target) then
+                local view = {}
+                local headPos = target:EyePos()
+                view.origin = headPos - target:GetForward()*100 + Vector(0,0,50)
+                view.angles = (headPos - view.origin):Angle()
+                view.fov = fov
+                view.drawviewer = true
+                return view
+            end
+        end)
+    else
+        hook.Remove("CalcView","SpectateView")
+    end
+end)
+Spectate:Option("FOV",90)
