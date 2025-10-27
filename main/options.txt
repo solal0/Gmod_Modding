@@ -22,5 +22,5 @@ PropFilter:Option("prop_ragdoll", true)
 -- Spectate Folder
 local Spectate = CreateFolder("Spectate")
 Spectate:Option("Enable Spectate", false)
-Spectate:Option("Target Player", true) -- can be later turned into a dropdown
+Spectate:Option("Target Player", true)
 Spectate:Option("FOV", 90)
