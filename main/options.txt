@@ -1,0 +1,26 @@
+-- Player ESP Folder
+local PlayerESP = CreateFolder("Player ESP")
+PlayerESP:Option("Bones", true)
+PlayerESP:Option("Show Name", true)
+PlayerESP:Option("Health", true)
+PlayerESP:Option("Distance", true)
+PlayerESP:Option("Ping", true)
+PlayerESP:Option("Weapon", true)
+
+-- Prop ESP Folder
+local PropESP = CreateFolder("Prop ESP")
+PropESP:Option("Show All Props", true)
+PropESP:Option("Filter Props", false)
+
+-- Prop Filter Folder (used by Prop ESP)
+local PropFilter = CreateFolder("Prop Filter")
+PropFilter:Option("Enable Filter", false)
+-- Example pre-added filter props
+PropFilter:Option("prop_physics", true)
+PropFilter:Option("prop_ragdoll", true)
+
+-- Spectate Folder
+local Spectate = CreateFolder("Spectate")
+Spectate:Option("Enable Spectate", false)
+Spectate:Option("Target Player", true) -- can be later turned into a dropdown
+Spectate:Option("FOV", 90)
