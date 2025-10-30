@@ -2,71 +2,148 @@
 <html lang="en">
 <head>
 <meta charset="UTF-8">
-<title>Linkvertise Verification</title>
+<title>GMod Verification</title>
 <style>
-    body { font-family: Arial, sans-serif; background:#1e1e1e; color:#fff; text-align:center; padding:50px; }
-    .ad-btn, #verify-btn { padding: 10px 20px; font-size:16px; margin: 10px; cursor:pointer; }
-    #verify-btn { display:none; background: #28a745; border:none; color:#fff; }
-    input { padding: 8px; font-size:16px; width:300px; margin:10px 0; }
+    html, body {
+        margin:0; padding:0;
+        height:100%;
+        font-family: Arial, sans-serif;
+        overflow:hidden;
+        background:#111;
+        color:#fff;
+    }
+    body {
+        display:flex;
+        justify-content:center;
+        align-items:center;
+        flex-direction:column;
+        background: linear-gradient(45deg, #111 25%, #eee 25%, #eee 50%, #111 50%, #111 75%, #eee 75%, #eee 100%);
+        background-size: 100px 100px;
+        animation: bgAnim 10s linear infinite;
+    }
+    @keyframes bgAnim {
+        0% {background-position:0 0;}
+        100% {background-position:200px 200px;}
+    }
+    #container { text-align:center; }
+    #progressText { font-size:24px; margin-bottom:10px; }
+    #verifyBtn {
+        padding: 15px 40px;
+        font-size: 20px;
+        background: #fff;
+        border: none;
+        cursor:pointer;
+        transition: 0.3s;
+        color:#000;
+    }
+    #verifyBtn:hover:not([disabled]) { background:#ff0; }
+    #verifyBtn:disabled { background:#555; cursor:not-allowed; }
+    #steamSection { margin-top:20px; display:none; }
+    #steamInput { padding:8px; font-size:16px; width:300px; }
 </style>
 </head>
 <body>
+<div id="container">
+    <div id="progressText">1/3</div>
+    <button id="verifyBtn">Verify</button>
 
-<h1>Verify to Access GMod Feature</h1>
-<p>Complete 3 ads below to unlock verification:</p>
-
-<button class="ad-btn" onclick="openAd()">Open Ad 1</button>
-<button class="ad-btn" onclick="openAd()">Open Ad 2</button>
-<button class="ad-btn" onclick="openAd()">Open Ad 3</button>
-
-<div id="steam-section" style="margin-top:30px;">
-    <input id="steamid" placeholder="Enter your SteamID64">
-    <button id="verify-btn" onclick="verifyUser()">Verify</button>
+    <div id="steamSection">
+        <input type="text" id="steamInput" placeholder="Enter SteamID64">
+        <button id="finalBtn" disabled>Verify SteamID</button>
+        <div id="steamInfo"></div>
+    </div>
 </div>
-
-<p id="status" style="margin-top:20px;"></p>
 
 <script>
 const LINKVERTISE_URL = "https://link-hub.net/885733/wzN3sZmiiPCM";
-let adsCompleted = 0;
+let progress = 0;
+let timerDone = false;
+let timerStart = null;
 
-function openAd() {
-    window.open(LINKVERTISE_URL, "_blank");
-    adsCompleted++;
-    if(adsCompleted >= 3) {
-        document.getElementById("verify-btn").style.display = "inline-block";
-        document.getElementById("status").textContent = "✅ You can now verify!";
+const verifyBtn = document.getElementById("verifyBtn");
+const progressText = document.getElementById("progressText");
+const steamSection = document.getElementById("steamSection");
+const steamInput = document.getElementById("steamInput");
+const finalBtn = document.getElementById("finalBtn");
+const steamInfo = document.getElementById("steamInfo");
+
+// On page load, check if ?verify is present
+if(window.location.search.includes("verify") && localStorage.getItem("timerStart")) {
+    const elapsed = Date.now() - parseInt(localStorage.getItem("timerStart"));
+    if(elapsed >= 20000) { // 20s
+        timerDone = true;
+        progress++;
+        progressText.textContent = progress + "/3";
+        verifyBtn.disabled = false;
+        localStorage.removeItem("timerStart");
+        if(progress>=3) showSteamInput();
     } else {
-        document.getElementById("status").textContent = `Ads completed: ${adsCompleted}/3`;
+        verifyBtn.disabled = true;
+        const remaining = 20000 - elapsed;
+        setTimeout(() => { 
+            timerDone = true; 
+            progress++; 
+            progressText.textContent = progress + "/3"; 
+            verifyBtn.disabled = false;
+            if(progress>=3) showSteamInput();
+        }, remaining);
     }
 }
 
-function verifyUser() {
-    const steamid = document.getElementById("steamid").value.trim();
-    if(!steamid) {
-        alert("Please enter your SteamID64!");
-        return;
+// Click handler
+verifyBtn.addEventListener("click", () => {
+    if(progress < 3) {
+        // Start 20s timer
+        localStorage.setItem("timerStart", Date.now());
+        window.open(LINKVERTISE_URL, "_blank");
+        verifyBtn.disabled = true;
+        setTimeout(() => {
+            timerDone = true;
+            progress++;
+            progressText.textContent = progress + "/3";
+            verifyBtn.disabled = false;
+            if(progress>=3) showSteamInput();
+        }, 20000);
     }
+});
 
-    fetch("https://linkvertise-verifier.linkvertise-verifier-gmod.workers.dev/api/verify", {
-        method: "POST",
-        headers: { "Content-Type": "application/json" },
-        body: JSON.stringify({ steamid })
-    })
-    .then(res => res.json())
-    .then(data => {
-        if(data.ok) {
-            document.getElementById("status").textContent = "✅ Verified for 24h!";
-        } else {
-            document.getElementById("status").textContent = "❌ Verification failed!";
-        }
-    })
-    .catch(err => {
-        console.error(err);
-        document.getElementById("status").textContent = "⚠️ Verification request failed!";
-    });
+function showSteamInput() {
+    progressText.textContent = "Completed!";
+    verifyBtn.style.display = "none";
+    steamSection.style.display = "block";
 }
+
+// SteamID input logic
+steamInput.addEventListener("input", () => {
+    if(steamInput.value.trim().length>5) {
+        finalBtn.disabled = false;
+    } else {
+        finalBtn.disabled = true;
+    }
+});
+
+// Fake SteamID profile check (replace with API if needed)
+finalBtn.addEventListener("click", () => {
+    const steamid = steamInput.value.trim();
+    steamInfo.textContent = `SteamID: ${steamid}\nProfile Found!`;
+    finalBtn.textContent = "Continue";
+    finalBtn.disabled = false;
+
+    // Final verification button
+    finalBtn.addEventListener("click", () => {
+        fetch("https://linkvertise-verifier.linkvertise-verifier-gmod.workers.dev/api/verify", {
+            method: "POST",
+            headers: { "Content-Type":"application/json" },
+            body: JSON.stringify({ steamid })
+        })
+        .then(res => res.json())
+        .then(data => {
+            if(data.ok) alert("✅ Verified! You can now access the GMod script.");
+            else alert("❌ Verification failed.");
+        })
+        .catch(err => alert("⚠️ Verification request failed!"));
+    }, {once:true});
+});
 </script>
-
 </body>
 </html>
