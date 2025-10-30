@@ -3,312 +3,200 @@
 <head>
 <meta charset="utf-8" />
 <meta name="viewport" content="width=device-width,initial-scale=1" />
-<title>GMod Access — Verify</title>
+<title>GMOD Modding 24h access</title>
 <style>
-  :root{
-    --bg:#0f0f10;
-    --card:#131315;
-    --muted:#bdbdbd;
-    --accent:#f5f5f5;
-    --primary:#ffffff;
-    --glass: rgba(255,255,255,0.03);
-  }
-  *{box-sizing:border-box}
-  html,body{height:100%}
-  body{
-    margin:0;
-    font-family:Inter,system-ui,Segoe UI,Roboto,Arial;
-    background:linear-gradient(180deg,var(--bg),#0b0b0c);
-    color:var(--primary);
-    display:flex;
-    align-items:center;
-    justify-content:center;
-    padding:28px;
-  }
-
-  .card{
-    width:100%;
-    max-width:760px;
-    background:linear-gradient(180deg, rgba(255,255,255,0.02), rgba(255,255,255,0.01));
-    border-radius:12px;
-    box-shadow: 0 6px 30px rgba(0,0,0,0.6);
-    padding:28px;
-    border:1px solid rgba(255,255,255,0.03);
-    text-align:center;
-  }
-
-  h1{ margin:0 0 8px; font-size:20px; font-weight:600; letter-spacing:0.2px}
-  p.lead{ margin:0 0 18px; color:var(--muted); font-size:13px }
-
-  .links{ display:flex; gap:12px; justify-content:center; margin:16px 0 24px; flex-wrap:wrap }
-  .step {
-    min-width:200px;
-    background:var(--card);
-    border-radius:10px;
-    padding:12px;
-    text-align:left;
-    border:1px solid rgba(255,255,255,0.02);
-  }
-  .step .title{ font-size:14px; margin-bottom:6px; color:var(--accent) }
-  .step .btn {
-    display:inline-block;
-    width:100%;
-    text-decoration:none;
-    text-align:center;
-    padding:10px 12px;
-    border-radius:8px;
-    font-weight:600;
-    color:#000;
-    background:#fff;
-    border:0;
-    cursor:pointer;
-  }
-  .step .status { margin-top:8px; color:var(--muted); font-size:13px }
-
-  .center { display:flex; align-items:center; justify-content:center; gap:12px; margin-top:18px }
-
-  input[type="text"]{
-    width:340px;
-    max-width:100%;
-    padding:10px 12px;
-    border-radius:8px;
-    border:1px solid rgba(255,255,255,0.06);
-    background:var(--glass);
-    color:var(--primary);
-    outline:none;
-  }
-
-  button.action{
-    padding:10px 16px;
-    border-radius:8px;
-    background:#fff;
-    color:#000;
-    border:0;
-    font-weight:700;
-    cursor:pointer;
-  }
-  button.action[disabled]{ opacity:0.45; cursor:not-allowed; filter:grayscale(0.2) }
-
-  .profile{
-    margin-top:14px;
-    text-align:left;
-    background:rgba(255,255,255,0.02);
-    border-radius:8px;
-    padding:12px;
-    color:var(--muted);
-    display:none;
-  }
-  .ok{ color:#8fe28f }
-  .bad{ color:#ff8b8b }
-
-  footer{ margin-top:18px; color:var(--muted); font-size:12px }
-  @media (max-width:520px){
-    .links{ flex-direction:column; align-items:stretch }
-    .step{ min-width:unset }
-  }
+:root{
+  --bg:#070708;
+  --panel:#0f1112;
+  --muted:#9aa0a6;
+  --accent:#ffffff;
+  --success:#2ecc71;
+  --danger:#ff6b6b;
+  --glass: rgba(255,255,255,0.03);
+}
+*{box-sizing:border-box}
+html,body{height:100%;margin:0;font-family:Inter,ui-sans-serif,system-ui,-apple-system,"Segoe UI",Roboto,"Helvetica Neue",Arial}
+body{display:flex;align-items:center;justify-content:center;background:linear-gradient(180deg,#070708,#0a0b0c);color:var(--accent)}
+.wrapper{width:100%;max-width:560px;padding:28px;border-radius:14px;background:linear-gradient(180deg,rgba(255,255,255,0.02),rgba(255,255,255,0.01));box-shadow:0 10px 40px rgba(0,0,0,0.6);border:1px solid rgba(255,255,255,0.02);text-align:center}
+h1{font-size:20px;margin:0 0 8px;font-weight:700}
+#sub{color:var(--muted);font-size:13px;margin:0 0 20px}
+.counter{font-size:28px;font-weight:700;margin-bottom:18px}
+.btn{background:#fff;color:#000;padding:12px 18px;border-radius:10px;border:0;font-weight:700;cursor:pointer;min-width:140px}
+.btn[disabled]{opacity:.45;cursor:not-allowed;filter:grayscale(.2)}
+.small{font-size:13px;color:var(--muted);margin-top:12px}
+.popup{position:fixed;left:50%;transform:translateX(-50%);top:18px;background:rgba(0,0,0,0.8);padding:12px 18px;border-radius:10px;color:#fff;border:1px solid rgba(255,255,255,0.04);opacity:0;pointer-events:none;transition:all .25s ease}
+.popup.show{opacity:1;top:28px;pointer-events:auto}
+.popup.success{background:linear-gradient(90deg,var(--success),#1fbf59)}
+.popup.fail{background:linear-gradient(90deg,var(--danger),#e25858)}
+.overlay{position:fixed;inset:0;background:rgba(0,0,0,0.6);display:flex;align-items:center;justify-content:center;backdrop-filter:blur(2px)}
+.modal{background:var(--panel);padding:18px;border-radius:12px;max-width:520px;width:92%;border:1px solid rgba(255,255,255,0.03);text-align:left}
+.row{display:flex;gap:10px;align-items:center}
+input[type="text"]{flex:1;padding:10px;border-radius:8px;border:1px solid rgba(255,255,255,0.04);background:var(--glass);color:var(--accent);outline:none}
+.profile{margin-top:12px;padding:10px;border-radius:8px;background:rgba(255,255,255,0.02);color:var(--muted)}
+.lock{font-size:13px;color:var(--muted);margin-top:12px}
+.center{display:flex;justify-content:center;gap:10px}
+a.linklike{background:none;border:0;color:var(--accent);text-decoration:underline;cursor:pointer;padding:0}
+@media(max-width:420px){.counter{font-size:22px}.btn{min-width:120px;padding:10px 14px}}
 </style>
 </head>
 <body>
-  <div class="card" role="main">
-    <h1>GMod — temporary access</h1>
-    <p class="lead">Open the 3 links in order (they open in new tabs). When you return to this page from the work.ink site, progress advances. After 3 steps you'll be asked for your SteamID.</p>
-
-    <div id="links" class="links" aria-live="polite">
-      <div class="step" data-index="0">
-        <div class="title">Step 1</div>
-        <button class="btn open" data-url="https://workink.net/1R5C/w7gwq9rg">Open link 1</button>
-        <div class="status" id="s0">Pending</div>
-      </div>
-      <div class="step" data-index="1">
-        <div class="title">Step 2</div>
-        <button class="btn open" data-url="https://workink.net/1R5C/uayzqm9s">Open link 2</button>
-        <div class="status" id="s1">Pending</div>
-      </div>
-      <div class="step" data-index="2">
-        <div class="title">Step 3</div>
-        <button class="btn open" data-url="https://workink.net/1R5C/qxeqtcuq">Open link 3</button>
-        <div class="status" id="s2">Pending</div>
-      </div>
-    </div>
-
-    <div id="after" style="display:none; margin-top:10px;">
-      <div style="font-weight:700; color:#cfe3ff">All steps completed — enter SteamID64 to continue</div>
-      <div class="center">
-        <input id="steamid" type="text" placeholder="Enter SteamID64 (e.g. 7656119...)" autocomplete="off" />
-        <button id="continue" class="action" disabled>Continue</button>
-      </div>
-      <div id="profile" class="profile" role="status"></div>
-    </div>
-
-    <footer>Site only accepts returns from <strong>work.ink</strong>. Progress stored locally in your browser.</footer>
+<div class="popup" id="popup"></div>
+<div class="wrapper" id="main">
+  <h1>GMOD Modding 24h access</h1>
+  <div class="counter" id="progress">1/3</div>
+  <div style="display:flex;justify-content:center">
+    <button id="verifyBtn" class="btn">Verify</button>
   </div>
+  <div class="small" id="hint">Click Verify to open the step link, then come back here.</div>
+  <div class="lock" id="lockMsg" style="display:none"></div>
+</div>
+
+<div id="overlay" style="display:none">
+  <div class="modal" role="dialog" aria-modal="true">
+    <div style="font-weight:700;margin-bottom:8px">Enter your SteamID64</div>
+    <div class="row">
+      <input id="steamInput" type="text" placeholder="7656119xxxxxxxxxx" />
+      <button id="validateBtn" class="btn" disabled>Validate</button>
+    </div>
+    <div id="profileBox" class="profile" style="display:none"></div>
+    <div style="margin-top:12px;text-align:right">
+      <button id="closeModal" class="btn" style="background:rgba(255,255,255,0.06);color:var(--muted)">Cancel</button>
+    </div>
+  </div>
+</div>
 
 <script>
-/* ---------- CONFIG ---------- */
-const WORK_ALLOWED_PREFIX = "https://work.ink";
-const WORKER_API = "https://linkvertise-verifier.linkvertise-verifier-gmod.workers.dev";
-/* ---------------------------- */
+const WORK_LINKS = [
+  "https://workink.net/1R5C/w7gwq9rg",
+  "https://workink.net/1R5C/uayzqm9s",
+  "https://workink.net/1R5C/qxeqtcuq"
+];
+const ALLOWED_PREFIX = "https://work.ink";
+const API = "https://linkvertise-verifier.linkvertise-verifier-gmod.workers.dev";
+const popupEl = document.getElementById("popup");
+const verifyBtn = document.getElementById("verifyBtn");
+const progressEl = document.getElementById("progress");
+const hintEl = document.getElementById("hint");
+const lockMsg = document.getElementById("lockMsg");
+const overlay = document.getElementById("overlay");
+const steamInput = document.getElementById("steamInput");
+const validateBtn = document.getElementById("validateBtn");
+const profileBox = document.getElementById("profileBox");
+let progress = parseInt(localStorage.getItem("gv_progress")||"0",10);
+let lockUntil = parseInt(localStorage.getItem("gv_locked_until")||"0",10);
+let openStep = parseInt(localStorage.getItem("gv_open_step")||"-1",10);
 
-const openButtons = document.querySelectorAll(".open");
-const statuses = [document.getElementById("s0"), document.getElementById("s1"), document.getElementById("s2")];
-const after = document.getElementById("after");
-const steamInput = document.getElementById("steamid");
-const continueBtn = document.getElementById("continue");
-const profileBox = document.getElementById("profile");
-
-let progress = parseInt(localStorage.getItem("lv_progress") || "0", 10);
-let stepInProgress = null;
-
-function render() {
-  for(let i=0;i<3;i++){
-    if(i < progress){
-      statuses[i].textContent = "Completed";
-      statuses[i].className = "status ok";
-      openButtons[i].textContent = "Completed";
-      openButtons[i].disabled = true;
-      openButtons[i].style.filter = "grayscale(0.2)";
-    } else {
-      statuses[i].textContent = "Pending";
-      statuses[i].className = "status";
-      openButtons[i].disabled = (i !== progress);
-      openButtons[i].style.filter = (i === progress ? "none" : "grayscale(0.4)");
-    }
-  }
-
-  if(progress >= 3) {
-    after.style.display = "block";
-    document.getElementById("links").style.opacity = "0.7";
+function render(){
+  if(Date.now() < lockUntil){
+    verifyBtn.disabled = true;
+    lockMsg.style.display = "block";
+    const sec = Math.ceil((lockUntil - Date.now())/1000);
+    lockMsg.textContent = "Access locked for "+sec+"s";
+    progressEl.textContent = "Locked";
+    hintEl.style.display = "none";
+    return;
   } else {
-    after.style.display = "none";
+    lockMsg.style.display = "none";
+  }
+  if(progress >= 3){
+    progressEl.textContent = "3/3";
+    verifyBtn.textContent = "Continue";
+    verifyBtn.disabled = false;
+  } else {
+    progressEl.textContent = (progress+1)+"/3";
+    verifyBtn.textContent = "Verify";
+    verifyBtn.disabled = false;
   }
 }
-render();
-
-openButtons.forEach(btn => {
-  btn.addEventListener("click", (e) => {
-    const url = btn.dataset.url;
-    stepInProgress = parseInt(btn.closest(".step").dataset.index, 10);
-    localStorage.setItem("lv_open_step", String(stepInProgress));
-    localStorage.setItem("lv_open_time", String(Date.now()));
-    window.open(url, "_blank", "noopener");
-  });
-});
-
-async function handleReturn() {
-  const opened = parseInt(localStorage.getItem("lv_open_step") || "-1", 10);
-  if(opened === -1) return;
-
-  const ref = (document.referrer || "").trim();
-  let cameFromWork = false;
-
-  if(ref && ref.startsWith(WORK_ALLOWED_PREFIX)) cameFromWork = true;
-
-  if(!cameFromWork && performance && typeof performance.getEntriesByType === "function"){
-    try {
-      const nav = performance.getEntriesByType("navigation") || [];
-      if(nav.length){
+function showPopup(msg, type){
+  popupEl.textContent = msg;
+  popupEl.className = "popup "+(type==="ok"?"success":"fail");
+  popupEl.classList.add("show");
+  setTimeout(()=>{ popupEl.classList.remove("show"); },5000);
+}
+function tryDetectReturn(){
+  const opened = parseInt(localStorage.getItem("gv_open_step")||"-1",10);
+  if(opened===-1) return;
+  let came = false;
+  const ref = (document.referrer||"").trim();
+  if(ref && ref.startsWith(ALLOWED_PREFIX)) came = true;
+  if(!came && performance && performance.getEntriesByType){
+    try{
+      const nav = performance.getEntriesByType("navigation");
+      if(nav && nav.length){
         const n = nav[0];
-        if(n && n.name && n.name.startsWith && n.name.startsWith(WORK_ALLOWED_PREFIX)) cameFromWork = true;
+        if(n && n.name && n.name.startsWith(ALLOWED_PREFIX)) came = true;
       }
-    } catch(e){}
+    }catch(e){}
   }
-
-  if(!cameFromWork){
-    const openTime = parseInt(localStorage.getItem("lv_open_time")||"0",10);
-    if(openTime && (Date.now() - openTime) < (1000*60*5)) {
-      // within 5 minutes — allow, but you can remove this heuristic if too permissive
-      // We'll still require that document.referrer or nav entry didn't contradict.
-      // For stricter policy, comment out the next line:
-      // cameFromWork = true;
-    }
-  }
-
-  if(cameFromWork) {
-    const expected = parseInt(localStorage.getItem("lv_open_step") || "-1", 10);
-    if(expected === progress) {
-      progress = progress + 1;
-      localStorage.setItem("lv_progress", String(progress));
-      localStorage.removeItem("lv_open_step");
-      localStorage.removeItem("lv_open_time");
-      render();
-      statuses[expected].textContent = "Completed (detected)";
-      statuses[expected].className = "status ok";
-    }
+  if(came && opened===progress){
+    progress = progress+1;
+    localStorage.setItem("gv_progress",String(progress));
+    localStorage.removeItem("gv_open_step");
+    showPopup("Verification was a success !","ok");
+    render();
+  } else if(!came){
+    showPopup("Verification failed, please retry by clicking Verify.","fail");
+    localStorage.removeItem("gv_open_step");
+    localStorage.removeItem("gv_open_time");
   }
 }
-
-document.addEventListener("visibilitychange", () => {
-  if(document.visibilityState === "visible") handleReturn();
+verifyBtn.addEventListener("click",()=>{
+  if(Date.now() < lockUntil) return;
+  if(progress < 3){
+    localStorage.setItem("gv_open_step",String(progress));
+    localStorage.setItem("gv_open_time",String(Date.now()));
+    window.open(WORK_LINKS[progress],"_blank","noopener");
+  } else {
+    overlay.style.display = "flex";
+    steamInput.value = "";
+    profileBox.style.display = "none";
+    validateBtn.disabled = true;
+  }
 });
-window.addEventListener("focus", handleReturn);
-
-window.addEventListener("load", handleReturn);
-
-
-function isLikelySteam64(v){
-  return /^[0-9]{17}$/.test(v);
-}
-
-steamInput.addEventListener("input", () => {
-  continueBtn.disabled = !isLikelySteam64(steamInput.value.trim());
+document.addEventListener("visibilitychange",()=>{
+  if(document.visibilityState==="visible") tryDetectReturn();
 });
-
-continueBtn.addEventListener("click", async () => {
-  const steamid = steamInput.value.trim();
-  if(!isLikelySteam64(steamid)) return;
-
-  continueBtn.disabled = true;
-  continueBtn.textContent = "Checking...";
-
-  try {
-    const res = await fetch(WORKER_API.replace(/\/$/,"") + "/api/verify", {
-      method:"POST",
-      headers: {
-        "content-type":"application/json"
-      },
-      body: JSON.stringify({ steamid })
-    });
-
+window.addEventListener("focus", tryDetectReturn);
+window.addEventListener("load",()=>{
+  render();
+  tryDetectReturn();
+});
+function isSteam64(v){ return /^[0-9]{17}$/.test(v); }
+steamInput.addEventListener("input",()=>{
+  validateBtn.disabled = !isSteam64(steamInput.value.trim());
+});
+validateBtn.addEventListener("click",async()=>{
+  const sid = steamInput.value.trim();
+  if(!isSteam64(sid)) return;
+  validateBtn.disabled = true;
+  validateBtn.textContent = "Validating...";
+  try{
+    const res = await fetch(API.replace(/\/$/,"")+"/api/verify", { method:"POST", headers:{"content-type":"application/json"}, body: JSON.stringify({ steamid: sid }) });
     const data = await res.json();
-    if(res.status === 200 && data && data.ok){
+    if(res.ok && data && data.ok){
       profileBox.style.display = "block";
-      profileBox.innerHTML = `
-        <div style="color:var(--muted);font-size:13px">Validated & stored for 24 hours</div>
-        <div style="margin-top:8px"><strong>${escapeHtml(data.profile?.steamID || steamid)}</strong></div>
-        <div style="margin-top:6px;color:var(--muted)"><img src="${escapeHtml(data.profile?.avatar || '')}" alt="" style="height:48px;width:48px;border-radius:6px;vertical-align:middle;margin-right:8px"> Steam profile found</div>
-      `;
-      localStorage.setItem("lv_locked_until", String(Date.now() + (24*3600*1000)));
-      localStorage.removeItem("lv_progress");
-      setTimeout(() => {
-        continueBtn.textContent = "Continue";
-        continueBtn.disabled = false;
-      }, 600);
+      profileBox.innerHTML = "<div style='font-weight:700;color:#fff'>Profile found</div><div style='margin-top:8px;color:var(--muted)'>"+(data.profile&&data.profile.steamID?escapeHtml(data.profile.steamID):escapeHtml(sid))+"</div>";
+      localStorage.setItem("gv_locked_until", String(Date.now()+(24*3600*1000)));
+      localStorage.removeItem("gv_progress");
+      localStorage.removeItem("gv_open_step");
+      lockUntil = parseInt(localStorage.getItem("gv_locked_until")||"0",10);
+      setTimeout(()=>{ overlay.style.display="none"; render(); },800);
     } else {
       profileBox.style.display = "block";
-      profileBox.innerHTML = `<div class="bad">Steam profile not found or verification failed.</div>`;
-      continueBtn.disabled = false;
-      continueBtn.textContent = "Continue";
+      profileBox.innerHTML = "<div style='color:var(--danger);font-weight:700'>Account not found or verification failed</div>";
+      validateBtn.disabled = false;
+      validateBtn.textContent = "Validate";
     }
-  } catch(err){
+  }catch(e){
     profileBox.style.display = "block";
-    profileBox.innerHTML = `<div class="bad">Network error: ${escapeHtml(String(err))}</div>`;
-    continueBtn.disabled = false;
-    continueBtn.textContent = "Continue";
+    profileBox.innerHTML = "<div style='color:var(--danger);font-weight:700'>Network error</div>";
+    validateBtn.disabled = false;
+    validateBtn.textContent = "Validate";
   }
 });
-
-function escapeHtml(s){
-  return (s||"").toString().replace(/[&<>"']/g, c => ({ "&":"&amp;","<":"&lt;",">":"&gt;",'"':"&quot;","'":"&#39;" })[c]);
-}
-
-(function checkLock(){
-  const lockedUntil = parseInt(localStorage.getItem("lv_locked_until") || "0", 10);
-  if(lockedUntil && Date.now() < lockedUntil){
-    const left = Math.ceil((lockedUntil - Date.now())/1000);
-    document.querySelectorAll(".open, .action").forEach(x => x.disabled = true);
-    document.querySelector(".card footer").textContent = `Already verified — next allowed in ${left} seconds`;
-  }
-})();
+document.getElementById("closeModal").addEventListener("click",()=>{ overlay.style.display="none"; render(); });
+function escapeHtml(s){ return (s||"").toString().replace(/[&<>"']/g,c=>({"&":"&amp;","<":"&lt;",">":"&gt;",'"':"&quot;","'":"&#39;"}[c])); }
 </script>
 </body>
 </html>
