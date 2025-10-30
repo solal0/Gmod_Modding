@@ -1,0 +1,72 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+<meta charset="UTF-8">
+<title>Linkvertise Verification</title>
+<style>
+    body { font-family: Arial, sans-serif; background:#1e1e1e; color:#fff; text-align:center; padding:50px; }
+    .ad-btn, #verify-btn { padding: 10px 20px; font-size:16px; margin: 10px; cursor:pointer; }
+    #verify-btn { display:none; background: #28a745; border:none; color:#fff; }
+    input { padding: 8px; font-size:16px; width:300px; margin:10px 0; }
+</style>
+</head>
+<body>
+
+<h1>Verify to Access GMod Feature</h1>
+<p>Complete 3 ads below to unlock verification:</p>
+
+<button class="ad-btn" onclick="openAd()">Open Ad 1</button>
+<button class="ad-btn" onclick="openAd()">Open Ad 2</button>
+<button class="ad-btn" onclick="openAd()">Open Ad 3</button>
+
+<div id="steam-section" style="margin-top:30px;">
+    <input id="steamid" placeholder="Enter your SteamID64">
+    <button id="verify-btn" onclick="verifyUser()">Verify</button>
+</div>
+
+<p id="status" style="margin-top:20px;"></p>
+
+<script>
+const LINKVERTISE_URL = "https://link-hub.net/885733/wzN3sZmiiPCM";
+let adsCompleted = 0;
+
+function openAd() {
+    window.open(LINKVERTISE_URL, "_blank");
+    adsCompleted++;
+    if(adsCompleted >= 3) {
+        document.getElementById("verify-btn").style.display = "inline-block";
+        document.getElementById("status").textContent = "✅ You can now verify!";
+    } else {
+        document.getElementById("status").textContent = `Ads completed: ${adsCompleted}/3`;
+    }
+}
+
+function verifyUser() {
+    const steamid = document.getElementById("steamid").value.trim();
+    if(!steamid) {
+        alert("Please enter your SteamID64!");
+        return;
+    }
+
+    fetch("https://linkvertise-verifier.linkvertise-verifier-gmod.workers.dev/api/verify", {
+        method: "POST",
+        headers: { "Content-Type": "application/json" },
+        body: JSON.stringify({ steamid })
+    })
+    .then(res => res.json())
+    .then(data => {
+        if(data.ok) {
+            document.getElementById("status").textContent = "✅ Verified for 24h!";
+        } else {
+            document.getElementById("status").textContent = "❌ Verification failed!";
+        }
+    })
+    .catch(err => {
+        console.error(err);
+        document.getElementById("status").textContent = "⚠️ Verification request failed!";
+    });
+}
+</script>
+
+</body>
+</html>
