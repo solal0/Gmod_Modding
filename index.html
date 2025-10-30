@@ -2,134 +2,57 @@
 <html lang="en">
 <head>
 <meta charset="UTF-8">
-<title>GMod Verification</title>
+<title>Opener Check</title>
 <style>
-body {
-    margin:0; padding:0;
-    height:100%;
-    font-family: Arial, sans-serif;
-    display:flex;
-    justify-content:center;
-    align-items:center;
-    flex-direction:column;
-    background: #111;
-    color:#fff;
-    transition: background 1s;
-}
-#container { text-align:center; }
-#progressText { font-size:24px; margin-bottom:10px; }
-#verifyBtn, #continueBtn {
-    padding: 15px 40px;
-    font-size:20px;
-    background:#fff;
-    color:#000;
-    border:none;
-    cursor:pointer;
-    transition:0.3s;
-    margin:5px;
-}
-#verifyBtn:hover:not([disabled]) { background:#ff0; }
-#verifyBtn:disabled, #continueBtn:disabled { background:#555; cursor:not-allowed; }
-#steamSection { display:none; margin-top:20px; }
-#steamInput { padding:8px; font-size:16px; width:300px; }
+    body {
+        font-family: Arial, sans-serif;
+        background: #111;
+        color: #fff;
+        display:flex;
+        justify-content:center;
+        align-items:center;
+        height:100vh;
+        text-align:center;
+    }
+    #output { font-size:24px; }
 </style>
 </head>
 <body>
-<div id="container">
-    <div id="progressText">1/3</div>
-    <button id="verifyBtn">Verify</button>
-
-    <div id="steamSection">
-        <input type="text" id="steamInput" placeholder="Enter SteamID64">
-        <button id="continueBtn" disabled>Continue</button>
-        <div id="steamInfo"></div>
-    </div>
-</div>
+<div id="output">Checking...</div>
 
 <script>
-const LINKVERTISE_URL = "https://link-hub.net/885733/wzN3sZmiiPCM";
-let progress = parseInt(localStorage.getItem("progress")||0);
-let timerEnd = parseInt(localStorage.getItem("timerEnd")||0);
+const output = document.getElementById("output");
 
-const verifyBtn = document.getElementById("verifyBtn");
-const progressText = document.getElementById("progressText");
-const steamSection = document.getElementById("steamSection");
-const steamInput = document.getElementById("steamInput");
-const continueBtn = document.getElementById("continueBtn");
-const steamInfo = document.getElementById("steamInfo");
+// Method 1: document.referrer
+let referrer = document.referrer || "";
 
-// Update progress text
-function updateProgressText() {
-    if(progress<3) progressText.textContent = (progress+1) + "/3";
-    else progressText.textContent = "Completed!";
-}
-
-// Show SteamID input
-function showSteamInput() {
-    progressText.textContent = "Completed!";
-    verifyBtn.style.display="none";
-    steamSection.style.display="block";
-}
-
-// Check if coming back with ?verify
-const params = new URLSearchParams(window.location.search);
-if(params.has("verify") && timerEnd) {
-    const remaining = timerEnd - Date.now();
-    if(remaining>0) {
-        verifyBtn.disabled = true;
-        setTimeout(() => { 
-            verifyBtn.disabled=false; 
-            progress++; 
-            localStorage.setItem("progress",progress);
-            updateProgressText();
-            localStorage.removeItem("timerEnd");
-            if(progress>=3) showSteamInput();
-        }, remaining);
-    } else {
-        verifyBtn.disabled = false;
-        progress++;
-        localStorage.setItem("progress",progress);
-        updateProgressText();
-        localStorage.removeItem("timerEnd");
-        if(progress>=3) showSteamInput();
+// Method 2: window.opener location (only works if same origin)
+let openerUrl = "";
+try {
+    if(window.opener && !window.opener.closed) {
+        openerUrl = window.opener.location.href;
     }
+} catch(e) {
+    openerUrl = "";
+}
+
+// Method 3: URL parameters fallback
+const urlParams = new URLSearchParams(window.location.search);
+const paramSource = urlParams.get("source") || "";
+
+// Decide which one to use
+let detected = "";
+if(referrer) detected = referrer;
+else if(openerUrl) detected = openerUrl;
+else if(paramSource) detected = paramSource;
+else detected = null;
+
+// Display result
+if(detected) {
+    output.textContent = "I think you came from: " + detected;
 } else {
-    updateProgressText();
+    output.textContent = "404 - Source unknown";
 }
-
-// Click handler
-verifyBtn.addEventListener("click", () => {
-    if(progress<3) {
-        timerEnd = Date.now() + 20000; // 20s
-        localStorage.setItem("timerEnd",timerEnd);
-        // Redirect to Linkvertise in same tab with ?verify appended for redirect back
-        window.location.href = LINKVERTISE_URL + "?verify";
-    }
-});
-
-// SteamID input logic
-steamInput.addEventListener("input", () => {
-    continueBtn.disabled = steamInput.value.trim().length<5;
-});
-
-// Final verification
-continueBtn.addEventListener("click", () => {
-    const steamid = steamInput.value.trim();
-    // Display user profile placeholder (replace with API if needed)
-    steamInfo.textContent = `SteamID: ${steamid}\nProfile Found!`;
-
-    fetch("https://linkvertise-verifier.linkvertise-verifier-gmod.workers.dev/api/verify", {
-        method:"POST",
-        headers:{"Content-Type":"application/json"},
-        body: JSON.stringify({steamid})
-    })
-    .then(res => res.json())
-    .then(data => {
-        if(data.ok) alert("✅ Verified! You can now access the GMod script.");
-        else alert("❌ Verification failed.");
-    })
-    .catch(err => alert("⚠️ Verification request failed!"));
-});
 </script>
 </body>
 </html>
