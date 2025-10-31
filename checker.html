@@ -1,0 +1,99 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+<meta charset="UTF-8">
+<meta name="viewport" content="width=device-width, initial-scale=1.0">
+<title>GMOD Verification Status</title>
+<style>
+  body {
+    margin: 0;
+    height: 100vh;
+    background: #0d0d0d;
+    color: white;
+    font-family: "Inter", sans-serif;
+    display: flex;
+    justify-content: center;
+    align-items: center;
+  }
+  .container {
+    background: #1a1a1a;
+    padding: 2rem 3rem;
+    border-radius: 12px;
+    box-shadow: 0 0 20px rgba(255,255,255,0.1);
+    text-align: center;
+    width: 320px;
+  }
+  h1 {
+    margin-bottom: 1rem;
+    font-size: 1.5rem;
+  }
+  input {
+    width: 100%;
+    padding: 0.5rem;
+    font-size: 1rem;
+    border-radius: 6px;
+    border: none;
+    outline: none;
+    background: #333;
+    color: white;
+  }
+  button {
+    margin-top: 1rem;
+    width: 100%;
+    padding: 0.6rem;
+    border: none;
+    border-radius: 6px;
+    background: white;
+    color: black;
+    font-weight: bold;
+    cursor: pointer;
+    transition: 0.2s;
+  }
+  button:hover {
+    background: #ddd;
+  }
+  .result {
+    margin-top: 1rem;
+    font-size: 1.1rem;
+  }
+  .verified { color: #6ef07f; }
+  .not-verified { color: #ff6b6b; }
+</style>
+</head>
+<body>
+  <div class="container">
+    <h1>GMOD Access Check</h1>
+    <input type="text" id="steamid" placeholder="Enter SteamID64">
+    <button id="checkBtn">Check Status</button>
+    <div class="result" id="result"></div>
+  </div>
+
+<script>
+const api = "https://linkvertise-verifier.linkvertise-verifier-gmod.workers.dev/api/check";
+
+document.getElementById("checkBtn").addEventListener("click", async () => {
+  const steamid = document.getElementById("steamid").value.trim();
+  const resultDiv = document.getElementById("result");
+
+  if (!/^[0-9]{17}$/.test(steamid)) {
+    resultDiv.innerHTML = "<span class='not-verified'>Invalid SteamID64</span>";
+    return;
+  }
+
+  resultDiv.textContent = "Checking...";
+  try {
+    const res = await fetch(`${api}?steamid=${steamid}`);
+    if (!res.ok) throw new Error("Network error");
+    const data = await res.json();
+    if (data.verified) {
+      resultDiv.innerHTML = `<span class="verified">✅ Verified<br>Access active</span>`;
+    } else {
+      resultDiv.innerHTML = `<span class="not-verified">❌ Not verified</span>`;
+    }
+  } catch (err) {
+    resultDiv.innerHTML = `<span class="not-verified">Network error</span>`;
+  }
+});
+</script>
+</body>
+</html>
