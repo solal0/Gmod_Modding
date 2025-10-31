@@ -3,7 +3,7 @@
 <head>
 <meta charset="utf-8" />
 <meta name="viewport" content="width=device-width,initial-scale=1" />
-<title>GMOD Modding 24h access</title>
+<title>GMOD Modding Verification System</title>
 <style>
 :root{
   --bg:#070708;
@@ -43,18 +43,18 @@ a.linklike{background:none;border:0;color:var(--accent);text-decoration:underlin
 <body>
 <div class="popup" id="popup"></div>
 <div class="wrapper" id="main">
-  <h1>GMOD Modding 24h access</h1>
+  <h1>GMOD Modding Verification System</h1>
   <div class="counter" id="progress">1/3</div>
   <div style="display:flex;justify-content:center">
     <button id="verifyBtn" class="btn">Verify</button>
   </div>
-  <div class="small" id="hint">Click Verify to open the step link, then come back here.</div>
+  <div class="small" id="hint">Click Verify to open the step link, once completed you'll get redirected back here.</div>
   <div class="lock" id="lockMsg" style="display:none"></div>
 </div>
 
 <div id="overlay" style="display:none">
   <div class="modal" role="dialog" aria-modal="true">
-    <div style="font-weight:700;margin-bottom:8px">Enter your SteamID64</div>
+    <div style="font-weight:700;margin-bottom:8px">Enter your SteamID64 (https://steamid.xyz/)</div>
     <div class="row">
       <input id="steamInput" type="text" placeholder="7656119xxxxxxxxxx" />
       <button id="validateBtn" class="btn" disabled>Validate</button>
@@ -92,7 +92,7 @@ function render(){
     verifyBtn.disabled = true;
     lockMsg.style.display = "block";
     const sec = Math.ceil((lockUntil - Date.now())/1000);
-    lockMsg.textContent = "Access locked for "+sec+"s";
+    lockMsg.textContent = "You already verified. Access resets every 24h, yours in: "+sec+"s";
     progressEl.textContent = "Locked";
     hintEl.style.display = "none";
     return;
