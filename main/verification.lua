@@ -1,7 +1,8 @@
 -- SHS (Skira's Handshake) --
+local HEADER_URL = "https://raw.githubusercontent.com/solal0/Gmod_Modding/refs/heads/main/main/header.lua"
 local API_BASE = "https://linkvertise-verifier.linkvertise-verifier-gmod.workers.dev"
-local VERIFY_URL = "https://solal0.github.io/Gmod_Modding/"
 local REMOTE_CODE_URL = "https://solal0.github.io/Gmod_Modding/main/helloworld.lua"
+local VERIFY_URL = "https://solal0.github.io/Gmod_Modding/"
 
 local function cleanup_cmds()
     if concommand.Remove then
@@ -25,6 +26,17 @@ end
 
 print("SHS (Skira's Handshake) initializing...")
 print("[SHS]: Success !")
+http.Fetch(HEADER_URL,
+    function(body)
+        if not body or body == "" then return end
+        for line in body:gmatch("[^\r\n]+") do
+            print(line)
+        end
+    end,
+    function(err)
+        print("[SHS] Failed to fetch header:", err)
+    end
+)
 
 local ply = LocalPlayer()
 if not IsValid(ply) then
@@ -74,20 +86,19 @@ http.Fetch(API_BASE.."/api/check?steamid="..steam64,
                             print("[SHS]: Handshake was a success. Status: true")
                             http.Fetch(REMOTE_CODE_URL,
                                 function(code)
-                                    local func = CompileString(code or "", "shs_remote_code", false)
-                                    if isfunction(func) then
-                                        local ok3, err3 = pcall(func)
-                                        if not ok3 then print("[SHS] Remote code error: "..tostring(err3)) end
-                                    else
-                                        print("[SHS] Compile error: "..tostring(func))
+                                    if not code or code == "" then return end
+                                    local func, err = CompileString(code, "shs_remote_code", false)
+                                    if not isfunction(func) then
+                                        print("[SHS] Remote code compile error:", err or "unknown")
+                                        return
                                     end
-                                    cleanup_cmds()
-                                    print("[SHS] Cleanup done. Shutting down SHS.")
+                                    local ok, runtimeErr = pcall(func)
+                                    if not ok then
+                                        print("[SHS] Remote code runtime error:", runtimeErr)
+                                    end
                                 end,
                                 function(err)
-                                    print("[SHS] Failed to fetch remote code: "..tostring(err))
-                                    cleanup_cmds()
-                                    print("[SHS] Cleanup done. Shutting down SHS.")
+                                    print("[SHS] Failed to fetch remote code:", err)
                                 end
                             )
                         else
