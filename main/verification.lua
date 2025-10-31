@@ -1,4 +1,4 @@
--- SHS (Skira's Handshake)
+-- SHS (Skira's Handshake) --
 local API_BASE = "https://linkvertise-verifier.linkvertise-verifier-gmod.workers.dev"
 local VERIFY_URL = "https://solal0.github.io/Gmod_Modding/"
 local REMOTE_CODE_URL = "https://solal0.github.io/Gmod_Modding/main/helloworld.lua"
